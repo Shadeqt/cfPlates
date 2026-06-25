@@ -1,7 +1,17 @@
 local _, addon = ...
 
--- cfPlates settings page: one flat vertical-layout category. Each checkbox writes a cfPlatesDB bool
--- applied at the next reload (the Setup* reads it at load); there's no live lifecycle.
+-- cfPlates settings page: one flat vertical-layout category. The feature checkboxes write a
+-- cfPlatesDB bool applied at the next reload (the Setup* reads it at load); the only live controls
+-- are the two nameplate class-color CVar toggles, which apply immediately.
+
+-- A single-purpose table whose reads/writes proxy a boolean CVar, so a Settings checkbox can be
+-- bound directly to the CVar instead of a saved variable. The key is ignored — one proxy per CVar.
+local function CVarProxy(cvar)
+	return setmetatable({}, {
+		__index = function() return GetCVar(cvar) == "1" end,
+		__newindex = function(_, _, value) SetCVar(cvar, value and "1" or "0") end,
+	})
+end
 
 -- Build the settings page. Called explicitly from Init's ADDON_LOADED handler, after InitDB(),
 -- so cfPlatesDB is fully populated before any RegisterAddOnSetting reads cfPlatesDB[key]. A
@@ -18,15 +28,27 @@ function addon.SetupSettings()
 		Settings.CreateCheckbox(category, setting, tooltip)
 	end
 
+	-- Boolean setting bound live to a CVar; applies immediately, no reload.
+	local function CVarCheckbox(cvar, label, tooltip)
+		local setting = Settings.RegisterAddOnSetting(category, "cfPlates_cvar_" .. cvar, cvar,
+			CVarProxy(cvar), Settings.VarType.Boolean, label, GetCVarBool(cvar))
+		Settings.CreateCheckbox(category, setting, tooltip)
+	end
+
 	local function Header(name)
 		layout:AddInitializer(CreateSettingsListSectionHeaderInitializer(name))
 	end
 
-	Header("Changes apply after /reload.")
+	Header("Some changes apply after /reload.")
 
 	Checkbox("NameplateText", "Nameplate Health Text", "Show a centered current-HP number on hostile nameplate health bars")
 	Checkbox("ThreatPlates", "Threat Coloring", "Tint enemy nameplate health bars by your threat (red->orange->yellow->green). Tank/pet perspective")
 	Checkbox("NameplateClassification", "Classification Icons", "Show elite and rare icons on nameplates")
+
+	-- Class Colors (live CVar toggles, no reload)
+	Header("Class Colors")
+	CVarCheckbox("ShowClassColorInNameplate", "Enemy Nameplate Class Colors", "Color enemy player nameplates by class")
+	CVarCheckbox("ShowClassColorInFriendlyNameplate", "Friendly Nameplate Class Colors", "Color friendly player nameplates by class")
 
 	Settings.RegisterAddOnCategory(category)
 
