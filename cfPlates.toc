@@ -1,0 +1,12 @@
+## Interface: 11508
+## Title: cfPlates
+## Notes: Nameplate tweaks with live settings (HP text, threat coloring, classification icons)
+## Author: Cowfoot
+## Version: 1.0
+## SavedVariablesPerCharacter: cfPlatesDB
+
+Init.lua
+NameplateText.lua
+ThreatPlates.lua
+NameplateClassification.lua
+Settings.lua
