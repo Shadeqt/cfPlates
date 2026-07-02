@@ -4,7 +4,8 @@ local addonName, addon = ...
 -- default on. InitDB() merges newly-added defaults and prunes any key no longer in the schema.
 addon.defaults = {
 	NameplateText           = true,  -- centered current-HP number on hostile nameplates
-	ThreatPlates            = true,  -- tint enemy nameplate health bars by your threat
+	ThreatGlow              = true,  -- aggro-warning glow behind the enemy nameplate health bar (losing aggro as tank / gaining it otherwise)
+	ThreatNumber            = true,  -- numeric threat delta beside the plate (sub-toggle of ThreatGlow)
 	NameplateClassification = true,  -- elite/rare icons on nameplates
 }
 
@@ -33,7 +34,7 @@ EventUtil.ContinueOnAddOnLoaded(addonName, function()
 	frame:SetScript("OnEvent", function(self)
 		self:UnregisterAllEvents()
 		addon.SetupNameplateText()
-		addon.SetupThreatPlates()
+		addon.SetupThreatGlow()
 		addon.SetupNameplateClassification()
 	end)
 end)

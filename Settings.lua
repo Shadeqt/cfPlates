@@ -42,7 +42,8 @@ function addon.SetupSettings()
 	Header("Some changes apply after /reload.")
 
 	Checkbox("NameplateText", "Nameplate Health Text", "Show a centered current-HP number on hostile nameplate health bars")
-	Checkbox("ThreatPlates", "Threat Coloring", "Tint enemy nameplate health bars by your threat (red->orange->yellow->green). Tank/pet perspective")
+	Checkbox("ThreatGlow", "Threat Glow", "Glow behind enemy nameplate health bars to warn about aggro (yellow->orange->red). As Tank it warns when you're losing aggro (silent while securely tanking); in any other role it warns when you're gaining it (group only)")
+	Checkbox("ThreatNumber", "Threat Number", "Show a numeric threat delta beside the plate (your lead, or your gap once you've lost aggro). Requires Threat Glow")
 	Checkbox("NameplateClassification", "Classification Icons", "Show elite and rare icons on nameplates")
 
 	-- Class Colors (live CVar toggles, no reload)

@@ -4,9 +4,10 @@
 -- so we attach our own centered FontString and refresh it from a SetValue hook (which keeps working
 -- as Blizzard recycles plates between units).
 --
--- Unlike the unit frames, nameplates have no native percent/value choice, so this is NOT gated on
--- NUMERIC: the number shows in every display mode and is hidden only on NONE (the user's global
--- "no bar text" switch, the statusTextDisplay CVar).
+-- Unlike the unit frames, nameplates have no native percent/value choice and are independent of the
+-- statusTextDisplay CVar: the number shows whenever the feature is enabled (cfPlatesDB.NameplateText),
+-- regardless of the global unit-frame text setting -- so NONE can blank the unit frames while
+-- nameplates keep their HP number.
 
 local _, addon = ...
 
@@ -46,7 +47,7 @@ end
 local function UpdatePlateText(hp)
 	local text = hp.cfHpText
 	if not text then return end
-	if GetCVar("statusTextDisplay") == "NONE" or not PlateAllowed(hp.cfUnit) then
+	if not PlateAllowed(hp.cfUnit) then
 		text:Hide(); return
 	end
 	local value = BarValue(hp)
@@ -89,15 +90,9 @@ function addon.SetupNameplateText()
 	hooked = true
 
 	local eventFrame = CreateFrame("Frame")
-	eventFrame:RegisterEvent("CVAR_UPDATE")
 	eventFrame:RegisterEvent("NAME_PLATE_UNIT_ADDED")
-	eventFrame:SetScript("OnEvent", function(_, event, arg1)
-		if event == "CVAR_UPDATE" then
-			-- Only statusTextDisplay (NONE vs not) changes what we render; ignore unrelated CVar churn.
-			if arg1 == "statusTextDisplay" then RefreshPlates() end
-		elseif event == "NAME_PLATE_UNIT_ADDED" then
-			local plate = C_NamePlate.GetNamePlateForUnit(arg1)
-			if plate then SetupPlate(plate, arg1) end
-		end
+	eventFrame:SetScript("OnEvent", function(_, _, arg1)
+		local plate = C_NamePlate.GetNamePlateForUnit(arg1)
+		if plate then SetupPlate(plate, arg1) end
 	end)
 end
